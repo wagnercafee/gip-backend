@@ -1,16 +1,87 @@
-Rodar projeto localmente
+# 🚀 GIP Backend
 
-$ docker compose up -d --build
+Backend do projeto **GIP** utilizando **FastAPI** e **PostgreSQL**, com ambiente isolado via **Docker**. Também é possível rodar localmente com Python para desenvolvimento.
 
-Aqui ira subir o backend que pode ser acessado via localhost:9090
+---
+## 🛠️ Tecnologias
+- 🐍 Python 3.9  
+- ⚡ FastAPI  
+- 🐘 PostgreSQL 15  
+- 🐳 Docker + Docker Compose  
+---
 
-Sobe o banco de dados tambem um postgres que pode ser acessado via dbeaver localhost:9091
-Utilizar o environment do arquivo docker-compose.yml para configurar o dbeaver.
+## ▶️ Como rodar o projeto com Docker
 
-Para instalar Bibliotecas deve se coloca-las no requirements.txt e rodar novamente:
+### 1. Pré-requisitos
+Certifique-se de ter o **Docker** e o **Docker Compose** instalados.
 
-Se o docker estiver rodando é bom derruba-lo com :
-$ docker compose down
+### 2. Subir o ambiente
+```bash
+docker compose up -d --build
+```
+Acesse a API: http://localhost:9090
 
-e depois:
-$ docker compose up -d --build
+### 3. Acesso ao banco de dados
+Use PgAdmin4, DBeaver ou outro cliente PostgreSQL com os dados abaixo:
+
+#### Environment:
+
+```bash
+Host: localhost  
+Porta: 9091  
+Usuário: gipuser  
+Senha: gippass  
+Banco de Dados: gipdb  
+```
+
+### 4. Como rodar localmente (sem Docker)
+Pre-Requisitos 
+
+- Python 3.9 instalado na máquina
+
+#### Execute o script de setup:
+```bash
+./setupLocal.sh
+```
+
+Esse comando irá:
+
+- Criar o ambiente virtual .venv (caso não exista)
+- Ativar o ambiente virtual
+- Instalar as dependências do requirements.txt
+
+### 5. Rodar a API localmente:
+
+ #### Após o ambiente estar pronto, execute:
+
+```bash
+uvicorn main:app --host 0.0.0.0 --port 9090 --reload
+```
+
+A API estará disponível em: http://localhost:9090
+
+### 6. Como instalar novas bibliotecas Python
+➤ Se estiver usando Docker(**recomendado**):
+- Adicione a biblioteca desejada no arquivo requirements.txt
+
+#### Rebuild o container:
+```bash
+docker compose down
+docker compose up -d --build
+```
+
+➤ Se estiver rodando localmente:
+#### Ative o ambiente virtual:
+```bash
+source .venv/bin/activate
+```
+
+#### Instale a nova biblioteca:
+```bash
+pip install <nome-da-biblioteca>
+```
+
+#### Atualize o requirements.txt:
+```bash
+pip freeze > requirements.txt
+```
