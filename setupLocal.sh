@@ -11,6 +11,6 @@ source .venv/bin/activate
 
 # Instala as dependências
 echo "Instalando dependências..."
-pip install -r requirements.txt
+pip install -r requirements-dev.txt
 
 echo "Ambiente pronto!"

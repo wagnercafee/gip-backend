@@ -48,7 +48,7 @@ Esse comando irá:
 
 - Criar o ambiente virtual .venv (caso não exista)
 - Ativar o ambiente virtual
-- Instalar as dependências do requirements.txt
+- Instalar as dependências do requirements-dev.txt
 
 ### 5. Rodar a API localmente:
 
@@ -81,7 +81,21 @@ source .venv/bin/activate
 pip install <nome-da-biblioteca>
 ```
 
-#### Atualize o requirements.txt:
+#### Atualize o requirements-dev.txt:
 ```bash
-pip freeze > requirements.txt
+pip freeze > requirements-dev.txt
 ```
+ℹ️ Sobre o arquivo requirements-dev.txt
+Este arquivo é usado apenas para desenvolvimento local. Ele inclui:
+
+- Todas as libs essenciais (-r requirements.txt)
+
+- Bibliotecas extras úteis para desenvolvimento (ex: linters, debuggers, etc.)
+
+- Sempre que instalar uma nova lib no ambiente local, atualize com:
+
+```bash
+pip freeze > requirements-dev.txt
+```
+
+**requirements.txt só deve possuir as bibliotecas realmente nescessarias!**
