@@ -1,0 +1,26 @@
+services:
+  api:
+    container_name: gip-backend
+    build: .
+    ports:
+      - "9090:8000"
+    volumes:
+      - .:/app
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+  db:
+    image: postgres:15
+    container_name: gip-db
+    environment:
+      POSTGRES_USER: gipuser
+      POSTGRES_PASSWORD: gippass
+      POSTGRES_DB: gipdb
+    ports:
+      - "9091:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
