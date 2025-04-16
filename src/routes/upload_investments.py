@@ -1,5 +1,5 @@
 from fastapi import APIRouter, UploadFile, File, HTTPException
-from src.services.investment_reader import read_excel
+from src.services.reader_excel import reader_excel
 
 router = APIRouter()
 
@@ -10,7 +10,7 @@ async def upload_investments(file: UploadFile = File(...)):
         raise HTTPException(status_code=400, detail="Arquivo deve ser .xlsx")
 
     content = await file.read()
-    data = read_excel(content)
+    data = reader_excel(content)
 
     return {"data": data}
 
@@ -21,6 +21,6 @@ async def upload_investments(file: UploadFile = File(...)):
         raise HTTPException(status_code=400, detail="Arquivo deve ser .xlsx")
 
     content = await file.read()
-    data = read_excel(content)
+    data = reader_excel(content)
 
     return {"data": data}

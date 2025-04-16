@@ -1,7 +1,7 @@
 import yfinance as yf
 
 
-async def search_quotes(tickers: list[str]) -> dict:
+async def get_price_tickers(tickers: list[str]) -> dict:
     prices = {}
     for ticker in tickers:
         try:

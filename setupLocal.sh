@@ -14,3 +14,5 @@ echo "Instalando dependências..."
 pip install -r requirements-dev.txt
 
 echo "Ambiente pronto!"
+
+uvicorn src.main:app --host 0.0.0.0 --port 9090 --reload
