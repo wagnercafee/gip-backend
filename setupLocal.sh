@@ -13,6 +13,14 @@ source .venv/bin/activate
 echo "Instalando dependências..."
 pip install -r requirements-dev.txt
 
+# Verifica se o arquivo .env.local existe
+if [ -f ".env.dev" ]; then
+  export $(cat .env.dev | xargs)
+else
+  echo "Arquivo .env.dev não encontrado! Certifique-se de que ele existe."
+  exit 1
+fi
+
 echo "Ambiente pronto!"
 
 uvicorn src.main:app --host 0.0.0.0 --port 9090 --reload
