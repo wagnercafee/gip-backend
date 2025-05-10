@@ -13,10 +13,6 @@ def process_excel_file(file_content: bytes, filename: str):
     return data
 
 
-# def reader_excel(file_content: bytes):
-#     df = pd.read_excel(BytesIO(file_content))
-#     return df.to_dict(orient="records")
-
 def reader_excel(file_content: bytes):
     """
     Lê o conteúdo do arquivo Excel, valida as colunas e mapeia para os nomes do banco de dados.

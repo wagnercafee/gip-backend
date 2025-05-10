@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from src.routes import upload_investments, search_quotes
-from src.database.connection import connect_db
+from src.database.connection import get_db_connection
 
 
 app = FastAPI()
@@ -19,7 +19,7 @@ app.include_router(search_quotes.router)
 @app.get("/test-db")
 async def test_db():
     try:
-        conn = await connect_db()
+        conn = await get_db_connection()
         await conn.execute("SELECT 1")
         await conn.close()
         return {"status": "Conexão com o banco funcionando"}
