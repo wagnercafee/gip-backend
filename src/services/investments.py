@@ -1,13 +1,6 @@
-from datetime import datetime
-from collections import defaultdict
-from fastapi import APIRouter, HTTPException
-from decimal import Decimal
-from collections import deque
-from typing import List, Dict
-from typing import Dict, List
 from fastapi import HTTPException
+from typing import List, Dict
 from src.database.connection import get_db_connection
-
 
 async def insert_investments(data: List[Dict]):
     """
@@ -86,83 +79,74 @@ async def remove_duplicates():
         await conn.close()
 
 
-router = APIRouter()
-
-
-def extrair_ticker(produto: str) -> str:
-    if "-" in produto:
-        return produto.split("-")[0].strip()
-    return None  # Ignorar produtos sem '-'
-
-
-async def calcular_preco_medio_e_lucro():
+async def investments():
     conn = await get_db_connection()
     try:
         rows = await conn.fetch("""
-            SELECT entrada_saida, data, movimentacao, produto, quantidade, preco_unitario, valor_da_operacao
-            FROM investments
-            ORDER BY data
+            SELECT * FROM investments ORDER BY data
         """)
+        return [dict(row) for row in rows]
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=f"Erro ao buscar dados: {e}")
     finally:
         await conn.close()
 
-    ativos = defaultdict(lambda: {
-        "total_comprado": 0.0,
-        "total_vendido": 0.0,
-        "quantidade_atual": 0,
-        "preco_medio": 0.0,
-        "lucro_prejuizo": 0.0,
-        "compras": [],
-        "vendas": []
-    })
 
-    for row in rows:
-        ticker = extrair_ticker(row["produto"])
-        if not ticker:
-            continue  # pula produtos inválidos
+async def unique_tickers():
+    conn = await get_db_connection()
+    try:
+        rows = await conn.fetch("""
+            SELECT DISTINCT produto FROM investments
+            ORDER BY produto
+        """)
+        lista = [row['produto'] for row in rows]
+        resultado = sorted([
+            item.split(" - ")[0] if " - " in item else item
+            for item in lista
+        ])
+        return resultado
+    finally:
+        await conn.close()
 
-        data = row["data"]
-        quantidade = float(row["quantidade"])
-        preco = float(row["preco_unitario"])
-        valor = float(row["valor_da_operacao"])
-        entrada_saida = row["entrada_saida"].lower()
-        movimentacao = row["movimentacao"].lower()
 
-        ativo = ativos[ticker]
+async def dividends():
+    conn = await get_db_connection()
+    try:
+        result = await conn.fetch("""
+            SELECT * FROM investments WHERE movimentacao LIKE 'Dividendo' ORDER BY data
+        """)
+        return [dict(row) for row in result]
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Erro ao buscar dados: {e}")
+    finally:
+        await conn.close()
 
-        if entrada_saida == "credito" and "transferência - liquidação" in movimentacao:
-            # Compra
-            ativo["total_comprado"] += valor
-            ativo["quantidade_atual"] += quantidade
 
-            # Recalcular preço médio
-            if ativo["quantidade_atual"] != 0:
-                ativo["preco_medio"] = ativo["total_comprado"] / \
-                    ativo["quantidade_atual"]
+async def jcp():
+    conn = await get_db_connection()
+    try:
+        result = await conn.fetch("""
+            SELECT * FROM investments WHERE movimentacao LIKE 'Juros Sobre Capital Próprio' ORDER BY data
+        """)
+        return [dict(row) for row in result]
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Erro ao buscar dados: {e}")
+    finally:
+        await conn.close()
 
-            ativo["compras"].append({
-                "quantidade": quantidade,
-                "valor": valor,
-                "data": data.strftime("%Y-%m-%d")
-            })
 
-        elif entrada_saida == "debito" and "transferência - liquidação" in movimentacao:
-            # Venda
-            ativo["total_vendido"] += valor
-            ativo["quantidade_atual"] -= quantidade
-
-            lucro_unitario = preco - ativo["preco_medio"]
-            lucro_total = lucro_unitario * quantidade
-            ativo["lucro_prejuizo"] += lucro_total
-
-            ativo["vendas"].append({
-                "quantidade": quantidade,
-                "valor": valor,
-                "data": data.strftime("%Y-%m-%d"),
-                "lucro_prejuizo": round(lucro_total, 2)
-            })
-
-    return {"ativos": ativos}
+async def rendimento():
+    conn = await get_db_connection()
+    try:
+        result = await conn.fetch("""
+            SELECT * FROM investments WHERE movimentacao LIKE 'Rendimento' ORDER BY data
+        """)
+        return [dict(row) for row in result]
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Erro ao buscar dados: {e}")
+    finally:
+        await conn.close()

@@ -2,19 +2,15 @@ from fastapi import FastAPI
 from src.routes import upload_investments, search_quotes
 from src.database.connection import get_db_connection
 
-
 app = FastAPI()
-
 
 @app.get("/")
 def read_root():
     return "GIP-Rodando!"
 
-
 # Incluindo o router do upload
 app.include_router(upload_investments.router)
 app.include_router(search_quotes.router)
-
 
 @app.get("/test-db")
 async def test_db():

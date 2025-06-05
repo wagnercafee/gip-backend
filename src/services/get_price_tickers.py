@@ -1,6 +1,5 @@
 import yfinance as yf
 
-
 async def get_price_tickers(tickers: list[str]) -> dict:
     prices = {}
     for ticker in tickers:

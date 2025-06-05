@@ -4,11 +4,8 @@ from typing import List
 from fastapi import APIRouter
 
 router = APIRouter()
-
-
 class TickerRequest(BaseModel):
     tickers: List[str]
-
 
 @router.post("/search-quotes")
 async def teste(request: TickerRequest):

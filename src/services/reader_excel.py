@@ -2,7 +2,6 @@ import pandas as pd
 from io import BytesIO
 from fastapi import HTTPException
 
-
 def process_excel_file(file_content: bytes, filename: str):
     # Valida o tipo de arquivo
     if not filename.endswith(".xlsx"):
@@ -11,7 +10,6 @@ def process_excel_file(file_content: bytes, filename: str):
     # Processa o conteúdo do Excel
     data = reader_excel(file_content)
     return data
-
 
 def reader_excel(file_content: bytes):
     """
