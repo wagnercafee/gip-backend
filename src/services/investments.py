@@ -1,3 +1,4 @@
+from decimal import Decimal
 from fastapi import HTTPException
 from typing import List, Dict
 from src.database.connection import get_db_connection
@@ -110,12 +111,11 @@ async def unique_tickers():
         await conn.close()
 
 
-async def dividends():
+async def get_proventos(tipo_movimentacao: str):
     conn = await get_db_connection()
     try:
-        result = await conn.fetch("""
-            SELECT * FROM investments WHERE movimentacao LIKE 'Dividendo' ORDER BY data
-        """)
+        query = "SELECT * FROM investments WHERE movimentacao LIKE $1 ORDER BY data"
+        result = await conn.fetch(query, tipo_movimentacao)
         return [dict(row) for row in result]
     except Exception as e:
         raise HTTPException(
@@ -124,29 +124,19 @@ async def dividends():
         await conn.close()
 
 
-async def jcp():
-    conn = await get_db_connection()
-    try:
-        result = await conn.fetch("""
-            SELECT * FROM investments WHERE movimentacao LIKE 'Juros Sobre Capital Próprio' ORDER BY data
-        """)
-        return [dict(row) for row in result]
-    except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Erro ao buscar dados: {e}")
-    finally:
-        await conn.close()
+async def calc_proventos(tipo_movimentacao: str):
+    proventos_data = await get_proventos(tipo_movimentacao)
+    tickers = await unique_tickers()
+    resultado = {}
 
+    for ticker in tickers:
+        soma_operacoes = Decimal('0.0')
 
-async def rendimento():
-    conn = await get_db_connection()
-    try:
-        result = await conn.fetch("""
-            SELECT * FROM investments WHERE movimentacao LIKE 'Rendimento' ORDER BY data
-        """)
-        return [dict(row) for row in result]
-    except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Erro ao buscar dados: {e}")
-    finally:
-        await conn.close()
+        for provento in proventos_data:
+            if ticker in provento['produto']:
+                soma_operacoes += provento['valor_da_operacao']
+
+        if soma_operacoes > Decimal('0.0'):
+            resultado[ticker] = soma_operacoes
+
+    return resultado

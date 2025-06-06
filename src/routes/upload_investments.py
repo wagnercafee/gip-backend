@@ -1,6 +1,7 @@
+import asyncio
 from fastapi import APIRouter, UploadFile, File
 from src.services.reader_excel import process_excel_file
-from src.services.investments import insert_investments, remove_duplicates, investments, unique_tickers, dividends, jcp, rendimento
+from src.services.investments import insert_investments, remove_duplicates, investments, calc_proventos
 
 router = APIRouter()
 
@@ -18,25 +19,19 @@ async def investments_route():
     resp = await investments()
     return resp
 
+@router.get("/proventos")
+async def proventos_route():
+    tipos_a_buscar = {
+        "dividendos": "Dividendo",
+        "jcp": "Juros Sobre Capital Próprio",
+        "rendimentos": "Rendimento",
+        "leilao_de_fracoes": "Leilão de Fração"
+    }
 
-@router.get("/unique_tickers")
-async def unique_tickers_route():
-    resp = await unique_tickers()
-    return resp
+    tasks = [calc_proventos(tipo) for tipo in tipos_a_buscar.values()]
 
+    resultados_lista = await asyncio.gather(*tasks)
 
-@router.get("/dividends")
-async def dividends_route():
-    resp = await dividends()
-    return resp
+    resposta_final = dict(zip(tipos_a_buscar.keys(), resultados_lista))
 
-@router.get("/jcp")
-async def jcp_route():
-    resp = await jcp()
-    return resp
-
-@router.get("/rendimentos")
-async def rendimento_route():
-    resp = await rendimento()
-    return resp
-
+    return resposta_final
